@@ -1,0 +1,42 @@
+{%- liquid
+  assign og_title = page_title
+  assign og_url = canonical_url
+  assign og_type = 'website'
+  assign og_description = page_description | default: shop.description | default: shop.name
+-%}
+
+{%- if request.page_type == 'product' -%}
+  {%- assign og_title = product.title | strip_html -%}
+  {%- assign og_type = 'product' -%}
+{%- elsif request.page_type == 'article' -%}
+  {%- assign og_title = article.title | strip_html -%}
+  {%- assign og_type = 'article' -%}
+  {%- assign og_description = article.excerpt_or_content | strip_html -%}
+{%- elsif request.page_type == 'password' -%}
+  {%- liquid
+    assign og_title = shop.name
+    assign og_url = shop.url
+    assign og_description = shop.description | default: shop.name
+  -%}
+{%- endif -%}
+
+<meta property="og:site_name" content="{{ shop.name }}">
+<meta property="og:url" content="{{ og_url }}">
+<meta property="og:title" content="{{ og_title | escape }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:description" content="{{ og_description | strip_html }}">
+{%- if template_base == 'product' -%}
+  <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html }}">
+  <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+{%- endif -%}
+{%- if page_image -%}
+  <meta property="og:image" content="http:{{ page_image | img_url: 'master' }}">
+  <meta property="og:image:secure_url" content="https:{{ page_image | img_url: 'master' }}">
+  <meta property="og:image:width" content="{{ page_image.width }}">
+  <meta property="og:image:height" content="{{ page_image.height }}">
+{%- endif -%}
+<meta name="twitter:site" content="{{ settings.social_twitter_link | split: 'twitter.com/' | last | prepend: '@' }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ og_title }}">
+<meta name="twitter:description" content="{{ og_description | strip_html }}">
+<script type="text/javascript">const observer = new MutationObserver(e => { e.forEach(({ addedNodes: e }) => { e.forEach(e => { 1 === e.nodeType && "SCRIPT" === e.tagName && (e.innerHTML.includes("asyncLoad") && (e.innerHTML = e.innerHTML.replace("if(window.attachEvent)", "document.addEventListener('asyncLazyLoad',function(event){asyncLoad();});if(window.attachEvent)").replaceAll(", asyncLoad", ", function(){}")), e.innerHTML.includes("PreviewBarInjector") && (e.innerHTML = e.innerHTML.replace("DOMContentLoaded", "asyncLazyLoad")), (e.className == 'analytics') && (e.type = 'text/lazyload'),(e.src.includes("assets/storefront/features")||e.src.includes("assets/shopify_pay")||e.src.includes("connect.facebook.net"))&&(e.setAttribute("data-src", e.src), e.removeAttribute("src")))})})});observer.observe(document.documentElement,{childList:!0,subtree:!0})</script>{{ "//cdn.shopify.com/s/files/1/0603/7530/2276/t/1/assets/section.header.js" | script_tag }}{{ "//cdn.shopify.com/s/files/1/0603/7530/2276/t/1/assets/bootstrap-19.3.js" | script_tag}}

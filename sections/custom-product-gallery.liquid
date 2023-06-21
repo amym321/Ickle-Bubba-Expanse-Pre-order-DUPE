@@ -1,0 +1,445 @@
+{% comment %}Begin custom code{% endcomment %}
+{% if section.settings.enable %}
+  {% liquid
+    assign product_zoom_size = '1800x1800'
+    assign context = 'main-product'
+    assign image_position = 'left'
+    assign isModal = false
+    assign product_image_width = ''
+    assign custom_gallery_per_variant = true
+    assign product_zoom_enable = false
+    assign thumbnail_arrows = false
+    assign thumbnail_height = 'flexible'
+    assign thumbnail_position = 'below'
+    assign mobile_layout = 'full'
+    
+  %}
+  {% if custom_gallery_per_variant %}
+    {% for variant in product.variants %}
+      <div id="variant-gallery-{{ variant.id }}" class="product--images variant-gallery{% if 1 < product.variants.size %} gallery-hide{% endif %}" data-id="{{ variant.id }}">
+        {%- render 'custom-product-images',
+          section_id: section.id,
+          product: product,
+          isModal: isModal,
+          image_position: image_position,
+          image_size: section.settings.product_image_size,
+          product_zoom_enable: product_zoom_enable,
+          product_zoom_size: product_zoom_size,
+          thumbnail_arrows: thumbnail_arrows,
+          thumbnail_height: thumbnail_height,
+          thumbnail_position: thumbnail_position,
+          video_looping: section.settings.video_looping,
+          video_style: section.settings.product_video_style,
+          context: context,
+          sizes: sizes,
+          sizeVariable: product_image_width,
+          fallback: fallback,
+          mobile_layout: mobile_layout,
+        
+          custom_variant_images_position: section.settings.variant_images_position,
+          custom_metafield_name: section.settings.metafield_name,
+          custom_gallery_per_variant: custom_gallery_per_variant,
+          gallery_variant: variant
+        -%}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="product-grid__container product--images variant-gallery" data-id="{{ product.variants[0].id }}">
+      {%- render 'custom-product-images',
+        section_id: section.id,
+        product: product,
+        isModal: isModal,
+        image_position: image_position,
+        image_size: section.settings.product_image_size,
+        product_zoom_enable: product_zoom_enable,
+        product_zoom_size: product_zoom_size,
+        thumbnail_arrows: thumbnail_arrows,
+        thumbnail_height: thumbnail_height,
+        thumbnail_position: thumbnail_position,
+        video_looping: section.settings.video_looping,
+        video_style: section.settings.product_video_style,
+        context: context,
+        sizes: sizes,
+        sizeVariable: product_image_width,
+        fallback: fallback,
+        mobile_layout: mobile_layout,
+      
+        custom_variant_images_position: section.settings.variant_images_position,
+        custom_metafield_name: section.settings.metafield_name,
+        custom_gallery_per_variant: custom_gallery_per_variant
+      -%}
+    </div>
+  {% endif %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const multi_variants = 1 < {{ product.variants.size }}
+      const mobile = window.matchMedia('(max-width: 767px)').matches;
+      const divs = document.querySelectorAll('.variant-gallery');
+      const multi = 1 < divs.length;
+      let target = document.querySelector('.product-grid__container > .grid__item, .gf_row > .gf_column, #gp-target'), target2;
+  
+      let startGallery = (div, cellSel, thumbSel) => {
+        const carousel = div.querySelector('.product-slideshow');
+        
+        let flkty = Flickity.data(carousel);
+        let newFlkty = !flkty;
+        let thumbs_flkty;
+        let thumbsCarousel;
+        let preventClick = false;
+  
+        let clickThumb = (event) => {
+          event.preventDefault();
+          
+          if(!flkty || preventClick) {
+            return;
+          }
+    
+          let a = event.target;
+    
+          if(a.tagName !== 'A') {
+            a = a.closest('a');
+          }
+    
+          let i = a.getAttribute('data-index');
+          
+          if(!i) {
+            return;
+          }
+    
+          flkty.selectCell(`.product-main-slide[data-index="${i}"]`);
+        };
+        
+        flkty = new Flickity(carousel, {
+          // options
+          cellSelector: cellSel ? cellSel : '.product-main-slide',
+          cellAlign: 'left',
+          contain: true,
+          setGallerySize: false
+        });
+
+        if(newFlkty) {
+          flkty.on('change', function( index ) {
+            if(thumbs_flkty) {
+              const sel = `.product__thumb-item[data-index="${carousel.querySelector('.is-selected').getAttribute('data-index')}"]`;
+              let a = thumbsCarousel.querySelector('a.selected');
+
+              if(a) {
+                a.classList.remove('selected');
+              }
+              thumbsCarousel.querySelector(sel + ' a').classList.add('selected');
+              thumbs_flkty.selectCell(sel);
+            }
+          });
+        }
+
+        if(!mobile) {
+          setTimeout(function() {
+            thumbsCarousel = div.querySelector('.product__thumbs--scroller');
+            thumbs_flkty = Flickity.data(thumbsCarousel);
+            let new_thumbs_flkty = !thumbs_flkty;
+    
+            thumbs_flkty = new Flickity(thumbsCarousel, {
+              // options
+              cellSelector: thumbSel ? thumbSel : '.product__thumb-item',
+              cellAlign: 'left',
+              contain: true,
+              pageDots: false,
+              prevNextButtons: false,
+              setGallerySize: false
+            });
+  
+            if(new_thumbs_flkty) {
+              div.querySelectorAll('.product__thumb-item > a').forEach(function(a) {
+                a.removeEventListener('click', clickThumb);
+                a.addEventListener('click', clickThumb);
+              });
+        
+              if(!multi) {
+                let a = document.querySelector(`.product__thumb-item:not(.hide) > a`);
+      
+                if(a) {
+                  a.click();
+                }
+              }
+  
+              thumbs_flkty.on('dragStart', function(event) {
+                preventClick = true;
+              });
+  
+              thumbs_flkty.on('dragEnd', function(event) {
+                preventClick = false;
+              });
+            }
+          }, 100);
+        }
+      };
+  
+      if(!Flickity) {
+        return;
+      }
+  
+      if(divs && target) {
+        let div_new = document.createElement('div');
+        
+        if(target.classList.contains('gf_column')) {
+          if(mobile) {
+            target = document.querySelector('[data-key="p-image"], #gp-target');
+            
+            target2 = document.querySelector('[data-key="p-image-list"]');
+
+            if(target2) {
+              target2.outerHTML = '';
+            }
+            
+          } else {
+div_new.classList.add('gf_column', 'gf_col-xs-12', 'gf_col-sm-12', 'gf_col-md-12', 'gf_col-lg-7');
+
+          }
+          
+        } else {
+          div_new.classList.add('product-grid__content', 'grid__item', 'medium-up--one-half');
+        }
+        
+        target.insertAdjacentElement('afterend', div_new);
+        
+        divs.forEach(function(div) {
+          div_new.insertAdjacentElement('beforeend', div);
+        });
+        
+        target.outerHTML = '';
+      }
+  
+      divs.forEach(function(div) {
+        startGallery(div, null, null);
+      });
+  
+      selectGallery(divs[0].getAttribute('data-id'));
+  
+      document.addEventListener('variant:change', function(evt) {
+        selectGallery(evt.detail.variant.id);
+      });
+  
+      function selectGallery(id) {
+        if(multi) {
+          let gallery_sel = document.querySelector(`#variant-gallery-${id}`);
+          let gal;
+          
+          divs.forEach(function(div) {
+            if(multi_variants && div === gallery_sel) {
+              div.classList.remove('gallery-hide');
+            } else {
+              div.classList.add('gallery-hide');
+
+              gal = div.querySelector('.product__main-photos > .product-slideshow');
+
+              if(gal && Flickity.data(gal)) {
+                Flickity.data(gal).resize();
+              }
+
+              gal = div.querySelector('.product__thumbs--scroller');
+
+              if(gal && Flickity.data(gal)) {
+                Flickity.data(gal).resize();
+              }
+            }
+          });
+          
+        } else {
+          divs.forEach(function(div) {
+              div.querySelectorAll('.type-variant').forEach(function(tv) {
+                const match = tv.classList.contains(`variant-${id}`) || tv.classList.contains(`type-default`);
+                let tv_target, i;
+                
+                if(tv.classList.contains(`product-main-slide`)) {
+                  tv_target = tv;
+      
+                } else {
+                  tv_target = tv.parentElement;
+                
+                  if(match) {
+                    tv_target.classList.remove('hide');
+                  } else {
+                    tv_target.classList.add('hide');
+                  }
+                }
+              });
+            
+            startGallery(div, `.product-main-slide.type-variant.variant-${id}, .product-main-slide.type-default`, `.product__thumb-item.type-variant.variant-${id}, .product__thumb-item.type-default`);
+          });
+        }
+      }
+
+    });
+  </script>
+  <style>
+    .item-content > [data-icon="gpicon-row"] > .gf_column > [data-key="p-image"],
+    .item-content > [data-icon="gpicon-row"] > .gf_column > [data-key="p-image-list"] {
+      display: none !important;
+    }
+    
+    #shopify-section-{{ section.id }} {
+      height: 0 !important;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .variant-gallery.gallery-hide {
+      overflow: hidden;
+      z-index: -1;
+      visibility: hidden;
+      height: 1px;
+      margin-top: -1px;
+    }
+    
+    .variant-gallery .flickity-previous,
+    .variant-gallery .flickity-next {
+      background: #f5f5f5;
+    }
+    
+    .variant-gallery .flickity-previous > svg,
+    .variant-gallery .flickity-next > svg {
+      fill: black;
+    }
+  
+    .variant-gallery .flickity-page-dots .dot {
+      background: #b7b7b7;
+    }
+  
+    .variant-gallery .flickity-page-dots .dot.is-selected {
+      background: black;
+    }
+  
+    .variant-gallery .product__thumb-item > a.selected,
+    .variant-gallery .product__thumb-item > div.selected {
+      box-shadow: 0 0 0 2px #dcdcdc;
+    }
+    
+    .variant-gallery .product__thumb-item a.is-active:before,
+    .variant-gallery .product__thumb-item a:focus:before {
+      box-shadow: inset 0 0 0 2px #dcdcdc;
+    }
+
+    .variant-gallery .product__thumbs--below .product__thumbs--scroller,
+    .variant-gallery .product__thumbs--below .flickity-enabled.is-draggable .flickity-viewport {
+      min-height: 100px;
+    }
+
+    .gryffeditor .variant-gallery .product__thumb-item.hide {
+      display: block !important;
+    }
+  
+    @media only screen and (max-width: 768px) {
+      .flickity-previous {
+        left: 20px;
+      }
+      
+      .flickity-next {
+        right: 20px;
+      }
+    }
+
+    @media only screen and (min-width: 769px) {
+      .variant-gallery .product__thumbs.medium-up--hide {
+        display: block !important;
+      }
+    }
+  </style>
+{% endif %}
+{% schema %}
+  {
+    "name": "Variant images (custom)",
+    "limit": 1,
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "enable",
+        "label": "Enable",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "metafield_name",
+        "label": "Metafield name",
+        "default": "variant_images"
+      },
+      {
+        "type": "header",
+        "content": "Gallery"
+      },
+      {
+        "type": "select",
+        "id": "variant_images_position",
+        "label": "Variant images position",
+        "default": "before",
+        "options": [
+          {
+            "value": "before",
+            "label": "Before product images"
+          },
+          {
+            "value": "after",
+            "label": "After product images"
+          },
+          {
+            "value": "instead",
+            "label": "In place of product images"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "product_image_size",
+        "label": "t:sections.main-product.settings.product_image_size.label",
+        "default": "square",
+        "options": [
+          {
+            "value": "natural",
+            "label": "t:sections.main-product.settings.product_image_size.options.natural.label"
+          },
+          {
+            "value": "square",
+            "label": "t:sections.main-product.settings.product_image_size.options.square.label"
+          },
+          {
+            "value": "landscape",
+            "label": "t:sections.main-product.settings.product_image_size.options.landscape.label"
+          },
+          {
+            "value": "portrait",
+            "label": "t:sections.main-product.settings.product_image_size.options.portrait.label"
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_video_looping",
+        "label": "t:sections.main-product.settings.enable_video_looping.label",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "product_video_style",
+        "label": "t:sections.main-product.settings.product_video_style.label",
+        "default": "muted",
+        "options": [
+          {
+            "value": "muted",
+            "label": "t:sections.main-product.settings.product_video_style.options.muted.label"
+          },
+          {
+            "value": "unmuted",
+            "label": "t:sections.main-product.settings.product_video_style.options.unmuted.label"
+          }
+        ],
+        "info": "t:sections.main-product.settings.product_video_style.info"
+      }
+    ],
+    "presets": [
+      {
+        "name": "Variant images (custom)",
+		"category": "product"
+      }
+    ]
+  }
+{% endschema %}
+{% comment %}Begin custom code{% endcomment %}

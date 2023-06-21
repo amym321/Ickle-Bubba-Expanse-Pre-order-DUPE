@@ -1,0 +1,25 @@
+{% assign date-today =  "today" | date: "%s" %}
+{% assign order-date = date-today %}
+
+{% assign order-item-counter = 1 %}
+{% for item in order.line_items %}
+  {% assign metafield-date = item.variant.metafields.custom.pre_order_date | date: "%s" %}
+
+  {% if metafield-date != empty %}
+    {% if order-item-counter == 1 %}
+      {% if metafield-date > date-today %}
+        {% assign order-date = metafield-date  %}
+      {% endif %}
+    {% else %}
+      {% if metafield-date > order-date %}
+        {% assign order-date = metafield-date %}
+      {% endif %}
+    {% endif %}
+
+    {% assign order-item-counter = order-item-counter | plus: 1 %}
+  {% endif %}
+{% endfor %}
+
+{% if order-date > date-today %}
+  <p>{{order-date | date: "%d %B" }}</p>
+{% endif %}
