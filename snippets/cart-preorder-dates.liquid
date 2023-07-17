@@ -24,9 +24,9 @@
 {% if order-date > date-today %}
   <div data-order-date class="cart-preorder">Order to be dispatched by {{ order-date | date: "%d %B"  }}</div>
   {% assign order-date-ISO = order-date | date: '%Y-%m-%d' %}
-  <input  data-preorder-iso="{{order-date-ISO}}" type="text" name="attributes[preOrderDate:]" value="{{order-date-ISO}}">
+  <input class="cart-attribute-date" data-preorder-iso="{{order-date-ISO}}" type="text" name="attributes[preOrderDate:]" value="{{order-date-ISO}}">
 {% else %}
   <div data-order-date ></div>
-  <input data-none data-preorder-iso="" type="text" name="attributes[preOrderDate:]" value="">
+  <input class="cart-attribute-date" data-none data-preorder-iso="" type="text" name="attributes[preOrderDate:]" value="">
 {% endif %}
 

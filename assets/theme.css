@@ -3752,7 +3752,7 @@ input[type=image]{
 
 select{
   background-position:100%;
-  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/24/assets/ico-select.svg);
+  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/27/assets/ico-select.svg);
   background-repeat:no-repeat;
   background-position:right 10px center;
   background-size:11px;
@@ -9426,7 +9426,7 @@ hyphens: auto;
   }
 
 .scheme-swirl{
-  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/24/assets/swirl.svg);
+  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/27/assets/swirl.svg);
   opacity:0.12;
 }
 
@@ -9439,23 +9439,23 @@ hyphens: auto;
 }
 
 .scheme-notebook{
-  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/24/assets/notebook.svg?v=117619123350284183521682107451);
+  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/27/assets/notebook.svg?v=117619123350284183521686014906);
   opacity:0.5;
 }
 
 .scheme-wave{
-  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/24/assets/wave.svg?v=139902885522920818171682107451);
+  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/27/assets/wave.svg?v=139902885522920818171686014912);
   background-size:cover;
   opacity:0.5;
 }
 
 .scheme-minimal-wave{
-  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/24/assets/minimal-wave.svg?v=121294942754257401231682107451);
+  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/27/assets/minimal-wave.svg?v=121294942754257401231686014910);
   opacity:0.5;
 }
 
 .scheme-plants{
-  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/24/assets/plants.svg?v=87151411933603496581682107451);
+  background-image:url(//cdn.shopify.com/s/files/1/0680/1820/9052/t/27/assets/plants.svg?v=87151411933603496581686014911);
 }
 
 .color-scheme-none.footer-promotion,.color-scheme-none.promo-grid__container{
@@ -13035,4 +13035,29 @@ padding:0px !important;
 
 .gf_swatches{
   padding-top: 0px!important;
+}
+
+
+/*************************/
+/******* AM styles *******/
+/*************************/
+
+.cart-preorder {
+  /*padding-bottom: 15px;*/
+  font-size: calc(var(--typeBaseSize) + 4px);
+  font-weight: 600;
+  color: #ba1b41;
+}
+
+.order-date {
+  font-weight: 600;
+  color: #ba1b41;
+}
+
+.cart-attribute-date {
+  visibility: hidden;
+  max-height: 1px;
+  padding: 0;
+  margin: 0;
+  font-size: 1px;
 }

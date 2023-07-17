@@ -31,13 +31,13 @@
                       {%- unless forloop.first -%},{%- endunless -%}
                       {
                         "position": {{- adjustment.position -}},
-                        "price": {{- adjustment.price |json -}}
+                        "price": {{- adjustment.price | json -}}
                       }
                     {%- endfor -%}
                   ],
-                  "price": {{- allocation.price -}},
-                  "compare_at_price": {{- allocation.compare_at_price -}},
-                  "per_delivery_price": {{- allocation.per_delivery_price -}},
+                  "price": {{- allocation.price | json -}},
+                  "compare_at_price": {{- allocation.compare_at_price | json -}},
+                  "per_delivery_price": {{- allocation.per_delivery_price | json -}},
                   "selling_plan_id": {{- allocation.selling_plan.id -}},
                   "selling_plan_group_id": "{{- allocation.selling_plan_group_id -}}"
                 }
@@ -45,7 +45,8 @@
             ]
           }
         {%- endfor -%}
-      ]
+      ],
+      "source": "template"
     }
   {%- endfor -%}
 ]

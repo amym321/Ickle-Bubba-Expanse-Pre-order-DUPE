@@ -1,6 +1,6 @@
 
 
-    (function( jQuery ){
+(function( jQuery ){
   var $module = jQuery('#m-1682498763387').children('.module');
   $module.gfV3Product();
 })( window.GemQuery || jQuery );

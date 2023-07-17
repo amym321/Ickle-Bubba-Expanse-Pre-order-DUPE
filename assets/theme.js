@@ -966,6 +966,8 @@ if (console && console.log) {
         this._updateUnitPrice(variant);
         this._updateSKU(variant);
         this.currentVariant = variant;
+
+        this._updatePreorder(variant); // - am
   
         if (this.enableHistoryState) {
           this._updateHistoryState(variant);
@@ -993,6 +995,15 @@ if (console && console.log) {
         }
   
         this.container.dispatchEvent(new CustomEvent('variantPriceChange', {
+          detail: {
+            variant: variant
+          }
+        }));
+      },
+
+      // update pdp preorder date - am  // causing error even when marked out
+      _updatePreorder: function(variant) {
+        this.container.dispatchEvent(new CustomEvent('variantPreorderChange', {
           detail: {
             variant: variant
           }
@@ -1642,7 +1653,6 @@ if (console && console.log) {
       orderPreorderDateISO: '[data-preorder-iso]',// preorder date as cart attribute - am
   
       cartBubble: '.cart-link__bubble',
-      cartNote: '[name="note"]',
       termsCheckbox: '.cart__terms-checkbox',
       checkoutBtn: '.cart__checkout'
     };
@@ -1673,9 +1683,7 @@ if (console && console.log) {
       this.orderDate = form.querySelector(selectors.orderDate);
       this.termsCheckbox = form.querySelector(selectors.termsCheckbox);
 
-
-      //is this duplicating efforts?? doing it once and then again on update?
-      this.notePreorderInput = form.querySelector(selectors.orderPreorderDateISO); // pass pre-order date as cart attribute - am
+      this.notePreorderInput = form.querySelector(selectors.orderPreorderDateISO); // pass pre-order date as cart attribute - am //is this duplicating efforts?? doing it once and then again on update?
 
       this.cartItemsUpdated = false;
   
@@ -1695,8 +1703,7 @@ if (console && console.log) {
         this.form.on('submit' + this.namespace, this.onSubmit.bind(this));
   
 
-
-
+  
         // Dev-friendly way to build the cart
         document.addEventListener('cart:build', function() {
           this.buildCart();
@@ -1893,16 +1900,11 @@ if (console && console.log) {
 
         if (preorderS > today) {
           this.form.querySelector(selectors.orderDate).innerHTML = preorderText;
-          // this.form.querySelector(selectors.orderPreorderDate).innerHTML = preorderText;
-          // this.form.querySelector(selectors.orderPreorderDate).setAttribute('data-preorder-note', preorderText);
-
           this.form.querySelector(selectors.orderPreorderDateISO).value = preorderISO;
           
         } else if (preorderS <= today) {
           if (this.form.querySelector(selectors.orderDate)) {
             this.form.querySelector(selectors.orderDate).innerHTML = ' ';
-            // this.form.querySelector(selectors.orderPreorderDate).innerHTML = '';
-
             this.form.querySelector(selectors.orderPreorderDateISO).value = '';
             // checkout button on cart-drawer fails when removing item with preorder date & leaving item w/o preorder date
             // occurs regardless of theme, 1st commit, device, etc, so nt any of my code. Was working b4
@@ -8051,6 +8053,7 @@ if (console && console.log) {
   
         priceWrapper: '[data-product-price-wrap]',
         price: '[data-product-price]',
+        preorder: '[data-variant-date]', // pdp preorder date- am
         comparePrice: '[data-compare-price]',
         savePrice: '[data-save-price]',
         priceA11y: '[data-a11y-price]',
@@ -8236,7 +8239,8 @@ if (console && console.log) {
         this.container.on('variantImageChange' + this.settings.namespace, this.updateVariantImage.bind(this));
         this.container.on('variantPriceChange' + this.settings.namespace, this.updatePrice.bind(this));
         this.container.on('variantUnitPriceChange' + this.settings.namespace, this.updateUnitPrice.bind(this));
-  
+        this.container.on('variantPreorderChange' + this.settings.namespace, this.updatePreorder.bind(this)); // pdp preorder date - am
+
         if (this.container.querySelectorAll(this.selectors.sku).length) {
           this.container.on('variantSKUChange' + this.settings.namespace, this.updateSku.bind(this));
         }
@@ -8378,6 +8382,44 @@ if (console && console.log) {
             }
           }
         }
+      },
+
+
+      // dynamic pdp Preorder text, ATC, & By Now button - am
+      updatePreorder: function(evt) {
+        var variant = evt.detail.variant;
+
+        var variantsMetafields = jQuery.parseJSON($("#hidden-variant-metafields").html());
+        var today = $("#hidden-today").html();
+
+        $("#hidden-current-variant-metafield").hide(); // delete the field 1st. If item "coming soon" no variant shows. So start with hidden field b/c can't delete later based on variant.id
+        $("#hidden-current-variant-message").hide();
+        $(".gf_p-dynamic-checkout-button").show();     // show the dynamic button 1st before possibly hiding
+        $("#m-1682498763345").show();
+        
+        variantsMetafields.forEach(function(variantMetafield) {
+          if (variantMetafield.variant_id == variant.id) {
+            if (variantMetafield.metafield_value !== false) {
+              if (variantMetafield.metafield_value_s > today) {
+                $("#hidden-current-variant-metafield").html("Order today for dispatch by "+variantMetafield.metafield_value);
+                $("#hidden-current-variant-metafield").show();
+                $("#hidden-current-variant-message").html("We will fulfill the item as soon as it becomes available");
+                $("#hidden-current-variant-message").show();
+                //$(".AddToCartText").html("PRE ORDER"); // goes back to ATC automatically on next variant change if necessary
+                $("#atc").html("PRE ORDER"); // goes back to ATC automatically on next variant change if necessary
+                $(".gf_p-dynamic-checkout-button").hide();
+              } else {
+                // $(".AddToCartText").html("ADD TO CART");
+                $(".gf_p-dynamic-checkout-button").show();
+                $("#m-1682498763345").show();
+              }
+            } else {
+              // $(".AddToCartText").html("ADD TO CART");
+              $(".gf_p-dynamic-checkout-button").show();
+              $("#m-1682498763345").show();
+            }
+          }
+        });
       },
   
       updateUnitPrice: function(evt) {

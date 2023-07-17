@@ -6,7 +6,7 @@
 	Try to edit page with the live editor.
 {% endcomment %}
 
-    (function( jQuery ){
+(function( jQuery ){
   var $module = jQuery('#m-1682498763387').children('.module');
   $module.gfV3Product();
 })( window.GemQuery || jQuery );
@@ -72,90 +72,19 @@
   var swatchText = $module.attr('data-swatch-text') != undefined ? $module.attr('data-swatch-text') : '1';
   $module.gfV3ProductSwatches({
     swatchText: swatchText,
-    onSwatchSelected: function(variant, $swatch) {
-      // - am        // hits on variant change FOR CHASSIS & HANDLES
-      console.log('log 85) Chassis or Handles');
-      console.log('log 85.2) chassis / color / handles = '+ variant.title);
-
-      var variantsMetafields = jQuery.parseJSON($("#hidden-variant-metafields").html());
-      var today = $("#hidden-today").html();
-
-      $("#hidden-current-variant-metafield").hide(); // delete the field 1st. If item "coming soon" no variant shows. So start with hidden field b/c can't delete later based on variant.id
-      $("#hidden-current-variant-message").hide();
-      $(".gf_p-dynamic-checkout-button").show();     // show the dynamic button 1st before possibly hiding
-
-      variantsMetafields.forEach(function(variantMetafield) {
-        if (variantMetafield.variant_id == variant.id) {
-          if (variantMetafield.metafield_value != false) {
-
-            if (variantMetafield.metafield_value_s > today) {
-              $("#hidden-current-variant-metafield").html("Order today for dispatch by "+variantMetafield.metafield_value);
-              $("#hidden-current-variant-metafield").show();
-              $("#hidden-current-variant-message").html("We will fulfill the item as soon as it becomes available");
-              $("#hidden-current-variant-message").show();
-              $(".AddToCartText").html("PRE ORDER"); // goes back to ATC automatically on next variant change if necessary
-              $(".gf_p-dynamic-checkout-button").hide();
-            }
-          }
-        }
-      });
-    // - am
-
-    }
+    onSwatchSelected: function(variant, $swatch) {}
   });
 })(window.GemQuery || jQuery);(function(jQuery) {
-    // - am
-
-  console.log('log 80) gem'); // hits at begining but not at variant change
-
-    // - am
   var $module = jQuery('#m-1682498763296').children('.module');
   var swatchText = $module.attr('data-swatch-text') != undefined ? $module.attr('data-swatch-text') : '1';
   $module.gfV3ProductSwatches({
     swatchText: swatchText,
     onSwatchSelected: function(variant, $swatch) {
-    // - am   // hits on variant change FOR COLOR SWATCH
-
-    console.log('log 81) Color Swatch');
-   
- 
-
-    // - am
       document.dispatchEvent(new CustomEvent('variant:change', {
         detail : {
           variant: variant
         }
       }));
-
-            // - am
-            console.log('log 82) gem onSwatchSelected');
-
-            var variantsMetafields = jQuery.parseJSON($("#hidden-variant-metafields").html());
-            var today = $("#hidden-today").html();
-
-            $("#hidden-current-variant-metafield").hide(); // delete the field 1st. If item "coming soon" no variant shows. So start with hidden field b/c can't delete later based on variant.id
-            $("#hidden-current-variant-message").hide();
-            $(".gf_p-dynamic-checkout-button").show();     // show the dynamic button 1st before possibly hiding
-            $("#m-1682498763345").show();     // show the dynamic button 1st before possibly hiding
-      
-            variantsMetafields.forEach(function(variantMetafield) {
-              if (variantMetafield.variant_id == variant.id) {
-                if (variantMetafield.metafield_value != false) {
-      
-                  if (variantMetafield.metafield_value_s > today) {
-                    $("#hidden-current-variant-metafield").html("Order today for dispatch by "+variantMetafield.metafield_value);
-                    $("#hidden-current-variant-metafield").show();
-                    $("#hidden-current-variant-message").html("We will fulfill the item as soon as it becomes available");
-                    $("#hidden-current-variant-message").show();
-                    $(".AddToCartText").html("XXX PRE ORDER"); // goes back to ATC automatically on next variant change if necessary
-                    $(".gf_p-dynamic-checkout-button").hide();
-                    $("#m-1682498763345").hide();
-                  }
-                }
-              }
-            });
-          // - am
-
     }
   });
 })(window.GemQuery || jQuery);
@@ -226,32 +155,12 @@
   
     
   
-    // change the ATC to pre-order on 1st variant if needed - am
+    
   
-    //// const defer = (fn, ...args) => setTimeout(fn, 6000, ...args);
+    
   
     (function( jQuery ){
   // var $module = jQuery('#m-1682501084243').children('.module');
   // You can add custom Javascript code right here.
-
-    (function atc() {
-    //// function atc() {
-      var firstVariant = $("#hidden-first-variant-metafield").html();
-      console.log('log 25) firstVariant.length = '+ firstVariant.length);
-      console.log('log 26) firstVariant = '+ firstVariant);
-
-      if (firstVariant.length > 0) {
-        console.log('log 27) firstVariant.length = '+ firstVariant.length);
-        $(".AddToCartText").html("PRE ORDER");
-        // $("#gf_p-dynamic-checkout-button").hide();
-        // $("#gf_p-dynamic-checkout-button").addClass("hide");
-        $("#m-1682498763345").hide();
-        // $("#m-1682498763345").addClass("hide");
-      }
-    })();
-    //// }
-    //// defer(atc);
-
-
 })( window.GemQuery || jQuery );
   

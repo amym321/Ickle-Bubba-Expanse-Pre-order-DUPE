@@ -35,70 +35,57 @@
     -%}
 
 
-  {% comment %} TO BE ADDED TO GEM:  pre-order date for dispatch - am {% endcomment %}
-  {% assign current_variant = product.selected_or_first_available_variant %}
+    {% comment %} pre-order date for dispatch for any products not in Gempages - am {% endcomment %}
+    {% assign current_variant = product.selected_or_first_available_variant %}
+    {% assign metafields-data = '[' %}
 
-  {%- for variant in product.variants -%}
-    {% if variant == current_variant %}
-      {% assign date-today =  "today" | date: "%s" %}
-      {% if metafield-date != empty %}
-        {% assign metafield-date =  variant.metafields.custom.pre_order_date  | date: "%s" %}
-      {% endif  %}
-  
-      {% if metafield-date != empty %}
-        {% if metafield-date > date-today %}
-          {% assign variant-date = metafield-date | date:  "%d/%m" %}
-          <div data-variant-date="variant-date" id="preorder-pdp-date">
-            Order today for dispatch by {{variant-date}}
-          </div>
-        {% else %}
-          <div data-variant-date="variant-date" id="preorder-pdp-date"></div>
+    {% for variant in product.variants %}
+      {% if variant == current_variant %}
+        {% assign date-today =  "today" | date: "%s" %}
+        {% if metafield-date != empty %}
+          {% assign metafield-date =  variant.metafields.custom.pre_order_date  | date: "%s" %}
         {% endif  %}
-      {% else %}
-        <div data-variant-date="variant-date" id="preorder-pdp-date"></div>
+    
+        {% if metafield-date != empty and variant.available %}
+          {% if metafield-date > date-today %}
+            {% assign variant-date = metafield-date | date:  "%d/%m" %}
+            {% assign first-variant-metafield-date =  variant.metafields.custom.pre_order_date  | date: "%d/%m"%}
+            <div id="preorder-pdp-date" data-variant-date="{{metafield-date}}">
+              <span id="hidden-current-variant-metafield" data-var-title="{{variant.title}}">
+                Order today for dispatch by {{variant-date}}</span>
+            </div>
+            <div id="preorder-pdp-msg">
+              <span id="hidden-current-variant-message" data-date="{{metafield-date}}">
+                We will fulfill the item as soon as it becomes available</span>
+            </div>
+          {% else %}
+            <div id="preorder-pdp-date" data-variant-date="{{metafield-date}}">
+              <span id="hidden-current-variant-metafield" style="display:none;"></span>
+            </div>
+            <div id="preorder-pdp-msg"><span id="hidden-current-variant-message" data-date="{{metafield-date}}"></span></div>
+          {% endif  %}
+        {% else %}
+          <div id="preorder-pdp-date" data-variant-date="{{metafield-date}}">
+            <span id="hidden-current-variant-metafield" style="display:none;"></span>
+          </div>
+          <div id="preorder-pdp-msg"><span id="hidden-current-variant-message" data-date="{{metafield-date}}"></span></div>
+        {% endif  %}
       {% endif  %}
-    {% endif  %}
-  {%- endfor -%}
 
+      {% assign metafield-value = variant.metafields.custom.pre_order_date | date: "%d/%m" | replace: '"', "''" %}
+      {% assign metafield-value-s = variant.metafields.custom.pre_order_date | date: "%s" | replace: '"', "''" %}
+      {% assign metafields-data = metafields-data | append: '{"variant_id":"' | append: variant.id| append: '" , "metafield_value":"' | append: metafield-value | append: '" , "metafield_value_s":"' | append: metafield-value-s | append: '"},' %}
 
-  {%- for variant in product.variants -%}
-    {% if variant == current_variant %}
-      {% assign date-today = "today" | date: "%s" %}
-      {% assign metafield-date =  variant.metafields.custom.pre_order_date  | date: "%s" %}
+    {% endfor %}
 
-      {% if metafield-date > date-today %}
-        <div id="preorder-pdp-msg">We will fulfill the item as soon as it becomes available</div>
-      {% endif  %}
-    {% endif  %}
-  {%- endfor variant -%}
+    {% assign metafields-data = metafields-data | append: ']'%}
+    {% assign metafields-data = metafields-data | replace: ",]", "]"%}
+
+    <span id="hidden-today" style="display:none;">{{date-today}}</span> 
+    <span id="hidden-first-variant-metafield" style="display:none;">{{first-variant-metafield-date}}</span>
+    <span id="hidden-variant-metafields" style="display:none;">{{metafields-data}}</span>  {% comment %} pass all metafield dates {% endcomment %}
+    {% comment %} end preorder date - am {% endcomment %}
   
-
-  <style>
-    #preorder-pdp-date,
-    #preorder-pdp-msg {
-      text-align: center;
-      padding: 3px 6px;
-      margin: 5px 0 10px;
-      display: block;
-      clear: both;
-    }
-
-    #preorder-pdp-date {
-      font-size: 15px;
-      /*font-size: 25px;*/
-      color: #4047ba;
-      font-weight: 600;
-    }
-    #preorder-pdp-msg {
-      font-size: 12px;
-      /*font-size: 25px;*/
-    }
-  </style>
-
-
-
-
-
 
     <button
       {% if product.empty? %}type="button"{% else %}type="submit"{% endif %}
@@ -106,7 +93,7 @@
       data-add-to-cart
       class="btn btn--full add-to-cart{% if enable_dynamic_buttons and product.selling_plan_groups == empty %} btn--secondary{% endif %}"
       {% unless current_variant.available %} disabled="disabled"{% endunless %}>
-      <span data-add-to-cart-text data-default-text="{{ default_text }}">
+      <span id="atc" data-add-to-cart-text data-default-text="{{ default_text }}">
         {{ button_text }}
       </span>
     </button>
@@ -137,3 +124,39 @@
     {%- endfor -%}
   </select>
 {%- endform -%}
+
+{% comment %} preorder date - am {% endcomment %}
+<style>
+  #preorder-pdp-date,
+  #preorder-pdp-msg {
+    text-align: center;
+    padding: 3px 6px;
+    margin: 5px 0 10px;
+    display: block;
+    clear: both;
+  }
+
+  #preorder-pdp-date {
+    font-size: 15px;
+    /*font-size: 25px;*/
+    color: #4047ba;
+    font-weight: 600;
+  }
+  #preorder-pdp-msg {
+    font-size: 12px;
+    /*font-size: 25px;*/
+  }
+</style>
+
+<script defer>
+  //set initial ATC & Buy Now button - am
+  (function () {
+    var dateText = document.getElementById('hidden-current-variant-message').innerHTML;
+
+    if (dateText) {
+      document.getElementById("atc").innerHTML = "PRE ORDER";
+    } else {
+      console.log('log) not preorder');
+    }
+  })();
+</script>
