@@ -26,7 +26,7 @@
   {% assign order-date-ISO = order-date | date: '%Y-%m-%d' %}
   <input class="cart-attribute-date" data-preorder-iso="{{order-date-ISO}}" type="text" name="attributes[preOrderDate:]" value="{{order-date-ISO}}">
 {% else %}
-  <div data-order-date ></div>
+  <div data-order-date class="cart-preorder"></div>
   <input class="cart-attribute-date" data-none data-preorder-iso="" type="text" name="attributes[preOrderDate:]" value="">
 {% endif %}
 
